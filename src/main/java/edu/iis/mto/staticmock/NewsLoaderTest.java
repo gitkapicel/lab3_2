@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.reflect.Whitebox.getField;
+import static org.mockito.Mockito.verify;
 
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -152,5 +153,37 @@ public class NewsLoaderTest {
 
 		// THEN:
 		assertEquals(testSubscribentContent.size(), 1);
+	}
+	
+	
+	@Test
+	public void loadNews_shouldCallLoadConfigurationOnce() {
+
+		// GIVEN:
+		IncomingNews incomingNews = new IncomingNews();
+
+		// mock Configuration
+		Configuration configuration = mock(Configuration.class);
+		when(configuration.getReaderType()).thenReturn("File");
+
+		// mock ConfigurationLoader
+		mockStatic(ConfigurationLoader.class);
+		ConfigurationLoader configurationLoader = mock(ConfigurationLoader.class);
+		when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
+		when(configurationLoader.loadConfiguration()).thenReturn(configuration);
+
+		// mock FileNewsReader
+		FileNewsReader reader = mock(FileNewsReader.class);
+		when(reader.read()).thenReturn(incomingNews);
+
+		// mock NewsReaderFactory
+		mockStatic(NewsReaderFactory.class);
+		when(NewsReaderFactory.getReader((String) Mockito.any())).thenReturn(
+				reader);
+
+		NewsLoader loader = new NewsLoader();
+		loader.loadNews();
+
+		verify(configurationLoader).loadConfiguration();
 	}
 }
