@@ -68,4 +68,89 @@ public class NewsLoaderTest {
 		assertEquals(testPublicContent.size(), 1);
 		assertEquals(testSubscribentContent.size(), 0);
 	}
+	
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void loadNews_expected_publicContent()
+			throws IllegalArgumentException, IllegalAccessException {
+
+		// GIVEN:
+		IncomingNews incomingNews = new IncomingNews();
+		IncomingInfo someInfo = new IncomingInfo("publicType",
+				SubsciptionType.NONE);
+		incomingNews.add(someInfo);
+
+		// mock Configuration
+		Configuration configuration = mock(Configuration.class);
+		when(configuration.getReaderType()).thenReturn("File");
+
+		// mock ConfigurationLoader
+		mockStatic(ConfigurationLoader.class);
+		ConfigurationLoader configurationLoader = mock(ConfigurationLoader.class);
+		when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
+		when(configurationLoader.loadConfiguration()).thenReturn(configuration);
+
+		// mock FileNewsReader
+		FileNewsReader fileReader = mock(FileNewsReader.class);
+		when(fileReader.read()).thenReturn(incomingNews);
+
+		// mock NewsReaderFactory
+		mockStatic(NewsReaderFactory.class);
+		when(NewsReaderFactory.getReader((String) Mockito.any())).thenReturn(
+				fileReader);
+
+		NewsLoader newsLoader = new NewsLoader();
+
+		// WHEN:
+		PublishableNews publishableNews = newsLoader.loadNews();
+		Field field = getField(PublishableNews.class, "publicContent");
+		List<String> testPublicContent = (List<String>) field
+				.get(publishableNews);
+
+		// THEN:
+		assertEquals(testPublicContent.size(), 1);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Test
+	public void loadNews_expectedSubscribentContent()
+			throws IllegalArgumentException, IllegalAccessException {
+
+		// GIVEN:
+		IncomingNews incomingNews = new IncomingNews();
+		IncomingInfo someInfo = new IncomingInfo("subscriptionType",
+				SubsciptionType.A);
+		incomingNews.add(someInfo);
+
+		// mock Configuration
+		Configuration configuration = mock(Configuration.class);
+		when(configuration.getReaderType()).thenReturn("File");
+
+		// mock ConfigurationLoader
+		mockStatic(ConfigurationLoader.class);
+		ConfigurationLoader configurationLoader = mock(ConfigurationLoader.class);
+		when(ConfigurationLoader.getInstance()).thenReturn(configurationLoader);
+		when(configurationLoader.loadConfiguration()).thenReturn(configuration);
+
+		// mock FileNewsReader
+		FileNewsReader fileReader = mock(FileNewsReader.class);
+		when(fileReader.read()).thenReturn(incomingNews);
+
+		// mock NewsReaderFactory
+		mockStatic(NewsReaderFactory.class);
+		when(NewsReaderFactory.getReader((String) Mockito.any())).thenReturn(
+				fileReader);
+
+		NewsLoader newsLoader = new NewsLoader();
+
+		// WHEN:
+		PublishableNews publishableNews = newsLoader.loadNews();
+		Field field = getField(PublishableNews.class, "subscribentContent");
+		List<String> testSubscribentContent = (List<String>) field
+				.get(publishableNews);
+
+		// THEN:
+		assertEquals(testSubscribentContent.size(), 1);
+	}
 }
